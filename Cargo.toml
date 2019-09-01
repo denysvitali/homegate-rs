@@ -1,0 +1,10 @@
+[package]
+name = "homegate"
+version = "0.1.0"
+authors = ["Denys Vitali <denys@denv.it>"]
+edition = "2018"
+
+[dependencies]
+reqwest = "0.9.20"
+serde = "1.0"
+serde_json = "1.0"
