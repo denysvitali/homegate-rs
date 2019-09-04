@@ -1,7 +1,6 @@
-use reqwest::{Client, Response, Url, Error, Method};
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::{Client, Response, Url, Error};
+use reqwest::header::HeaderValue;
 use crate::api::{BACKEND_URL, KEY};
-use std::borrow::Borrow;
 use reqwest::header;
 
 fn build_client<'a>() -> Result<Client, Error> {
@@ -18,7 +17,7 @@ fn build_client<'a>() -> Result<Client, Error> {
 }
 
 pub fn get(path: &str) -> Result<Response, Error> {
-    let mut url = Url::parse(&format!("{}{}",
+    let url = Url::parse(&format!("{}{}",
                                   BACKEND_URL,
                                   path));
 

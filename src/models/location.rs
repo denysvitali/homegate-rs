@@ -4,5 +4,6 @@ use serde::{Serialize, Deserialize};
 pub struct Location {
     name: String,
     r#type: String,
-    typeLabel: String
+    #[serde(rename="typeLabel")]
+    type_label: String
 }

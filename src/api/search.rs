@@ -1,10 +1,8 @@
-use crate::api::request::{get, get_url};
+use crate::api::request::get_url;
 use crate::api::BACKEND_URL;
 use crate::models::realestate::RealEstate;
 use crate::models::paginated::Paginated;
 use reqwest::Url;
-use std::error::Error;
-use std::borrow::Borrow;
 
 pub fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>, reqwest::Error> {
     let mut url : Url = Url::parse(&format!("{}{}", BACKEND_URL, "/rs/real-estates")).unwrap();
@@ -37,7 +35,7 @@ pub fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>, reqw
             .append_pair("nrs", &radius.to_string())
             .append_pair("ver", "3")
             .append_pair("lan", "en")
-            .append_pair("rfi", fields.join(","))
+            .append_pair("rfi", &fields.join(","));
     }
 
     let resp =  get_url(url)?.text()?;
@@ -68,5 +66,7 @@ mod tests {
     pub fn parse_json() {
         let file = fs::read_to_string("./resources/test/search.json").unwrap();
         let paginated_result = parse_search_result(&file);
+
+        assert!(paginated_result.result_count > 0)
     }
 }
