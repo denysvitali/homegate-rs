@@ -13,7 +13,7 @@ fn build_client<'a>() -> Result<Client, Error> {
                            HeaderValue::from_static("application/json"));
     default_headers.insert(header::USER_AGENT,
                            HeaderValue::from_static("okhttp/3.14.1"));
-    return client_builder.default_headers(default_headers).build();
+    return client_builder.default_headers(default_headers).build()
 }
 
 pub fn get(path: &str) -> Result<Response, Error> {
@@ -41,7 +41,7 @@ pub mod tests {
     use crate::api::request;
 
     #[test]
-    fn test_request() {
+    pub fn test_request() {
         let r : Result<Response, Error> = request::get( "/rs/geo-areas?lan=en");
         match r {
             Ok(mut response) => {

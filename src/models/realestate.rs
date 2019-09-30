@@ -4,39 +4,52 @@ use std::collections::HashMap;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RealEstate {
     #[serde(rename = "advertisementId")]
-    advertisement_id: i64,
-    title: String,
-    street: Option<String>,
-    zip: String,
-    city: String,
+    pub advertisement_id: i64,
+    pub title: String,
+    pub street: Option<String>,
+    pub zip: String,
+    pub city: String,
     #[serde(rename = "geoLocation")]
-    geo_location: String,
+    pub geo_location: String,
+
     #[serde(rename = "offerType")]
-    offer_type: OfferType,
+    pub offer_type: OfferType,
+
     #[serde(rename = "numberRooms")]
-    number_rooms: Option<f32>,
+    pub number_rooms: Option<f32>,
+    
     #[serde(rename = "surfaceLiving")]
-    surface_living: Option<i32>,
-    currency: String,
+    pub surface_living: Option<i32>,
+    pub currency: String,
+    
     #[serde(rename = "sellingPrice")]
-    selling_price: Option<i32>,
+    pub selling_price: Option<i32>,
+
     #[serde(rename = "priceUnit")]
-    price_unit: PriceUnit,
-    pictures: Vec<String>,
+    pub price_unit: PriceUnit,
+
+    pub pictures: Vec<String>,
+
     #[serde(rename = "objectTypeLabel")]
-    object_type_labe: String,
+    pub object_type_labe: String,
+
     #[serde(rename = "listingType")]
-    listing_type: ListingType,
+    pub listing_type: ListingType,
+
     #[serde(rename = "contactPerson")]
-    contact_person: Option<String>,
+    pub contact_person: Option<String>,
+
     #[serde(rename = "contactPhone")]
-    contact_phone: Option<String>,
+    pub contact_phone: Option<String>,
+
     #[serde(rename = "interestedFormType")]
-    interested_form_type: i32,
+    pub interested_form_type: i32,
+
     #[serde(rename = "externalUrls")]
-    external_urls: Vec<HashMap<String, String>>,
+    pub external_urls: Vec<HashMap<String, String>>,
+
     #[serde(rename = "picFileName1")]
-    pic_file_name_1: Option<String>,
+    pub pic_file_name_1: Option<String>,
 
 }
 
@@ -49,6 +62,7 @@ pub enum OfferType {
 pub enum PriceUnit {
     MONTHLY,
     M2YEARLY,
+    WEEKLY
 }
 
 #[derive(Serialize, Deserialize, Debug)]
