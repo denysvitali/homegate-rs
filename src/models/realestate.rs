@@ -58,7 +58,7 @@ pub enum OfferType {
     RENT
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum PriceUnit {
     MONTHLY,
     M2YEARLY,
