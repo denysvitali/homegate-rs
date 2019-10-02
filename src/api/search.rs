@@ -39,7 +39,6 @@ pub fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>, reqw
     }
 
     let resp =  get_url(url)?.text()?;
-    println!("Resp: {:?}", resp);
     let r : Paginated<RealEstate> = parse_search_result(&resp);
     Ok(r)
 }
