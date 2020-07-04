@@ -1,10 +1,10 @@
-use reqwest::{Client, Response, Url, Error};
+use reqwest::{Client, ClientBuilder, Response, Url, Error};
 use reqwest::header::HeaderValue;
 use crate::api::{BACKEND_URL, KEY};
 use reqwest::header;
 
 fn build_client<'a>() -> Result<Client, Error> {
-    let client_builder = reqwest::Client::builder();
+    let client_builder : ClientBuilder = reqwest::Client::builder();
     let mut default_headers = header::HeaderMap::new();
     default_headers.clear();
     default_headers.insert(header::AUTHORIZATION,
@@ -16,29 +16,28 @@ fn build_client<'a>() -> Result<Client, Error> {
     return client_builder.default_headers(default_headers).build()
 }
 
-pub fn get(path: &str) -> Result<Response, Error> {
+pub async fn get(path: &str) -> Result<Response, Error>{
     let url = Url::parse(&format!("{}{}",
                                   BACKEND_URL,
                                   path));
 
-    let c : Client = build_client()?;
-    let req = c.get(url.unwrap()).build()?;
-    c.execute(req)
+    let c : Client = build_client().unwrap();
+    let req = c.get(url.unwrap()).build().unwrap();
+    return c.execute(req).await;
 }
 
-pub fn get_url(url: Url) -> Result<Response, Error> {
+pub async fn get_url(url: Url) -> Result<Response, Error> {
     let c : Client = build_client()?;
-    println!("Client: {:?}", c);
-    let reqb = c.get(url);
-    let req = reqb.build()?;
-    println!("Headers: {:?}", req.headers());
-    c.execute(req)
+    let req_b = c.get(url);
+    let req = req_b.build()?;
+    c.execute(req).await
 }
 
 #[cfg(tests)]
 pub mod tests {
-    use reqwest::{Response, Error};
+    use reqwest::{Response, Error, Url};
     use crate::api::request;
+    use crate::api::request::get_url;
 
     #[test]
     pub fn test_request() {

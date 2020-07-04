@@ -2,9 +2,9 @@ use crate::api::request::get_url;
 use crate::api::BACKEND_URL;
 use crate::models::realestate::RealEstate;
 use crate::models::paginated::Paginated;
-use reqwest::Url;
+use reqwest::{Url, Response};
 
-pub fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>, reqwest::Error> {
+pub async fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>, reqwest::Error> {
     let mut url : Url = Url::parse(&format!("{}{}", BACKEND_URL, "/rs/real-estates")).unwrap();
     let mut fields : Vec<&str> = Vec::new();
     fields.push("advertisementId");
@@ -38,8 +38,8 @@ pub fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>, reqw
             .append_pair("rfi", &fields.join(","));
     }
 
-    let resp =  get_url(url)?.text()?;
-    let r : Paginated<RealEstate> = parse_search_result(&resp);
+    let resp : Response =  get_url(url).await?;
+    let r : Paginated<RealEstate> = parse_search_result(&resp.text().await?);
     Ok(r)
 }
 
@@ -52,9 +52,9 @@ mod tests {
     use crate::api::search::{search, parse_search_result};
     use std::fs;
 
-    #[test]
-    pub fn search_apartment() {
-        let paginated_result = search("Zurich", 10000);
+    #[tokio::test]
+    pub async fn search_apartment() {
+        let paginated_result = search("Zurich", 10000).await;
         assert!(paginated_result.is_ok());
 
         let pr = paginated_result.unwrap();
