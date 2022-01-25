@@ -1,32 +1,33 @@
 use reqwest::{Response, Url};
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
 
 use crate::api::BACKEND_URL;
-use crate::api::request::{get_url, post_url};
-use crate::models::paginated::Paginated;
+use crate::api::request::{post_url};
+use crate::models::paginated::{Paginated, parse_search_result};
 use crate::models::realestate::{OfferType, RealEstate};
 
-#[derive(Serialize, Deserialize)]
-struct FromTo {
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct FromTo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub to: Option<u32>,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Location {
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct Location {
     pub latitude: f32,
     pub longitude: f32,
     pub radius: u32,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct Query<'se> {
-    pub categories: Vec<&'se str>,
-    pub exclude_categories: Vec<&'se str>,
+pub struct Query<'a> {
+    #[serde(borrow)]
+    pub categories: Vec<&'a str>,
+    #[serde(borrow)]
+    pub exclude_categories: Vec<&'a str>,
     pub living_space: FromTo,
     pub location: Location,
     pub monthly_rent: FromTo,
@@ -34,15 +35,15 @@ struct Query<'se> {
     pub offer_type: OfferType,
 }
 
-#[derive(Serialize, Deserialize)]
-struct GeoCoordsTemplate {
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct GeoCoordsTemplate {
     pub latitude: bool,
     pub longitude: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct AddressTemplate {
+pub struct AddressTemplate {
     pub country: bool,
     pub geo_coordinates: GeoCoordsTemplate,
     pub locality: bool,
@@ -53,9 +54,9 @@ struct AddressTemplate {
     pub street_addition: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct CharacteristicsTemplate {
+pub struct CharacteristicsTemplate {
     pub living_space: bool,
     pub lot_size: bool,
     pub number_of_rooms: bool,
@@ -63,37 +64,37 @@ struct CharacteristicsTemplate {
     pub total_floor_space: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct ListerTemplate {
+pub struct ListerTemplate {
     pub logo_url: bool,
     pub phone: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct LocaleTextTemplate {
+pub struct LocaleTextTemplate {
     pub title: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct LocaleUrlsTemplate {
+pub struct LocaleUrlsTemplate {
     #[serde(rename = "type")]
     pub t: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct LocaleTemplate {
+pub struct LocaleTemplate {
     pub attachments: bool,
     pub text: LocaleTextTemplate,
     pub urls: LocaleUrlsTemplate,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct LocalizationTemplate {
+pub struct LocalizationTemplate {
     pub de: LocaleTemplate,
     pub en: LocaleTemplate,
     pub fr: LocaleTemplate,
@@ -101,9 +102,9 @@ struct LocalizationTemplate {
     pub primary: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct ListingTemplate {
+pub struct ListingTemplate {
     pub address: AddressTemplate,
     pub categories: bool,
     pub characteristics: CharacteristicsTemplate,
@@ -114,9 +115,9 @@ struct ListingTemplate {
     pub prices: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct ResultTemplate {
+pub struct ResultTemplate {
     pub id: bool,
     pub lister_branding: bool,
     pub listing: ListingTemplate,
@@ -124,9 +125,9 @@ struct ResultTemplate {
     pub remote_viewing: bool,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct SearchRequest<'se> {
+pub struct SearchRequest<'se> {
     pub from: i32,
     pub query: Query<'se>,
     pub result_template: ResultTemplate,
@@ -136,20 +137,18 @@ struct SearchRequest<'se> {
     pub track_total_hits: bool,
 }
 
-pub async fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>, reqwest::Error> {
-    let mut url: Url = Url::parse(&format!("{}{}", BACKEND_URL, "/search/listings")).unwrap();
+const LT: LocaleTemplate = LocaleTemplate {
+    urls: LocaleUrlsTemplate {
+        t: true
+    },
+    attachments: true,
+    text: LocaleTextTemplate {
+        title: true,
+    },
+};
 
-    let lt = LocaleTemplate {
-        urls: LocaleUrlsTemplate {
-            t: true
-        },
-        attachments: true,
-        text: LocaleTextTemplate {
-            title: true,
-        },
-    };
-
-    let search_request = SearchRequest {
+pub fn default_search<'a>() -> SearchRequest<'a> {
+    SearchRequest {
         from: 0,
         query: Query {
             categories: Vec::from(vec![
@@ -190,7 +189,8 @@ pub async fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>
             },
             monthly_rent: FromTo { from: Some(500), to: None },
             number_of_rooms: FromTo {
-                from: Some(2), to: None
+                from: Some(2),
+                to: None,
             },
             offer_type: OfferType::RENT,
         },
@@ -219,10 +219,10 @@ pub async fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>
                 id: true,
                 lister: ListerTemplate { logo_url: true, phone: true },
                 localization: LocalizationTemplate {
-                    de: lt.clone(),
-                    en: lt.clone(),
-                    fr: lt.clone(),
-                    it: lt.clone(),
+                    de: LT.clone(),
+                    en: LT.clone(),
+                    fr: LT.clone(),
+                    it: LT.clone(),
                     primary: true,
                 },
                 offer_type: true,
@@ -231,14 +231,20 @@ pub async fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>
             listing_type: true,
             remote_viewing: true,
         },
-        size: 0,
+        size: 20,
         sort_by: "listingType",
         sort_direction: "desc",
         track_total_hits: true,
-    };
-    let search_request_json = serde_json::to_string(&search_request).unwrap();
+    }
+}
 
-    println!("json={}", search_request_json);
+pub async fn search(location: &Location) -> Result<Paginated<RealEstate>, reqwest::Error> {
+    let mut url: Url = Url::parse(&format!("{}{}", BACKEND_URL, "/search/listings")).unwrap();
+
+    let mut search_request = default_search();
+    search_request.query.location = location.clone();
+
+    let search_request_json = serde_json::to_string(&search_request).unwrap();
 
     let resp: Response = post_url(url, &search_request_json).await?;
     let resp_text = resp.text().await?;
@@ -246,19 +252,27 @@ pub async fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>
     Ok(r)
 }
 
-pub fn parse_search_result(str: &str) -> Paginated<RealEstate> {
-    serde_json::from_str(str).unwrap()
-}
-
 #[cfg(test)]
 mod tests {
+    use std::fmt::Error;
     use std::fs;
 
-    use crate::api::search::{parse_search_result, search};
+    use tokio::fs::File;
+    use tokio::io::AsyncReadExt;
+
+    use crate::api::search::{default_search, Location, search, SearchRequest};
+    use crate::models::paginated::parse_search_result;
+
+    const ZURICH_LATLNG: (f64, f64) = (47.36667, 8.55);
 
     #[tokio::test]
     pub async fn search_apartment() {
-        let paginated_result = search("Zurich", 10000).await;
+        let paginated_result = search(
+            &Location {
+                latitude: ZURICH_LATLNG.0 as f32,
+                longitude: ZURICH_LATLNG.1 as f32,
+                radius: 1000,
+            }).await;
         assert!(paginated_result.is_ok());
 
         let pr = paginated_result.unwrap();
@@ -266,10 +280,20 @@ mod tests {
     }
 
     #[test]
+    pub fn create_json() {
+        let req = default_search();
+        let v = serde_json::to_string(&req).unwrap();
+        let f_json = fs::read_to_string("./resources/test/request-1.json").unwrap();
+
+        let decoded_json: SearchRequest = serde_json::from_str(f_json.as_str()).unwrap();
+        assert_eq!(decoded_json, req);
+    }
+
+    #[test]
     pub fn parse_json() {
         let file = fs::read_to_string("./resources/test/search.json").unwrap();
         let paginated_result = parse_search_result(&file);
 
-        assert!(paginated_result.result_count > 0)
+        assert!(paginated_result.total > 0)
     }
 }

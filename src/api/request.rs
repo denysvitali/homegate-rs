@@ -11,19 +11,16 @@ fn build_client<'a>() -> Result<Client, Error> {
     let mut default_headers = header::HeaderMap::new();
 
     let key = base64::encode(format!("{}:{}", API_USERNAME, API_PASSWORD));
-
     let app_id = calculate_app_id(&Utc::now().naive_utc());
 
-    default_headers.clear();
-    default_headers.insert(header::AUTHORIZATION,
-                           HeaderValue::from_str(&format!("Basic {}", key)).unwrap());
-    default_headers.insert(header::ACCEPT,
-                           HeaderValue::from_static("application/json"));
+    const APPL_JSON: &str = "application/json";
+
+    default_headers.insert(header::AUTHORIZATION, HeaderValue::from_str(&format!("Basic {}", key)).unwrap());
+    default_headers.insert(header::ACCEPT, HeaderValue::from_static(APPL_JSON));
     default_headers.insert("X-App-Id", app_id.parse().unwrap());
     default_headers.insert("X-App-Version", app_version().parse().unwrap());
-
-    default_headers.insert(header::USER_AGENT,
-                           HeaderValue::from_static(USER_AGENT)); // Not a typo!
+    default_headers.insert(header::USER_AGENT, HeaderValue::from_static(USER_AGENT)); // Not a typo!
+    default_headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(APPL_JSON));
     return client_builder.default_headers(default_headers).build();
 }
 
