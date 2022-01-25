@@ -1,6 +1,6 @@
 # UNOFFICIAL Homegate Library for Rust
 
-<p class="center">
+<p align="center">
   <img 
     src="./docs/logo.png" 
     alt="homegate.ch logo"
