@@ -1,7 +1,12 @@
 # UNOFFICIAL Homegate Library for Rust
 
-![Homegate Logo](./docs/logo.png)
-()
+<p class="center">
+  <img 
+    src="./docs/logo.png" 
+    alt="homegate.ch logo"
+    height="60"
+  />
+</p>
 
 ## Description
 
