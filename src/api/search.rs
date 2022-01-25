@@ -239,7 +239,7 @@ pub fn default_search<'a>() -> SearchRequest<'a> {
 }
 
 pub async fn search(location: &Location) -> Result<Paginated<RealEstate>, reqwest::Error> {
-    let mut url: Url = Url::parse(&format!("{}{}", BACKEND_URL, "/search/listings")).unwrap();
+    let url: Url = Url::parse(&format!("{}{}", BACKEND_URL, "/search/listings")).unwrap();
 
     let mut search_request = default_search();
     search_request.query.location = location.clone();
@@ -254,11 +254,11 @@ pub async fn search(location: &Location) -> Result<Paginated<RealEstate>, reqwes
 
 #[cfg(test)]
 mod tests {
-    use std::fmt::Error;
+    
     use std::fs;
 
-    use tokio::fs::File;
-    use tokio::io::AsyncReadExt;
+    
+    
 
     use crate::api::search::{default_search, Location, search, SearchRequest};
     use crate::models::paginated::parse_search_result;
@@ -282,7 +282,7 @@ mod tests {
     #[test]
     pub fn create_json() {
         let req = default_search();
-        let v = serde_json::to_string(&req).unwrap();
+        let _v = serde_json::to_string(&req).unwrap();
         let f_json = fs::read_to_string("./resources/test/request-1.json").unwrap();
 
         let decoded_json: SearchRequest = serde_json::from_str(f_json.as_str()).unwrap();
