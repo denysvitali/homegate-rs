@@ -1,8 +1,10 @@
 [package]
 name = "homegate"
+description = "Library to interact with homegate.ch's unofficial API"
+license = "MIT"
 version = "0.1.0"
 authors = ["Denys Vitali <denys@denv.it>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 base64 = "0"
