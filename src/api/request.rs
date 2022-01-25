@@ -1,9 +1,10 @@
+use chrono::Utc;
 use reqwest::{Client, ClientBuilder, Error, Response, Url};
 use reqwest::header;
 use reqwest::header::HeaderValue;
 
 use crate::api::{API_PASSWORD, API_USERNAME, BACKEND_URL, USER_AGENT};
-use crate::api::app_id::app_version;
+use crate::api::app_id::{app_version, calculate_app_id};
 
 fn build_client<'a>() -> Result<Client, Error> {
     let client_builder: ClientBuilder = reqwest::Client::builder();
@@ -11,7 +12,7 @@ fn build_client<'a>() -> Result<Client, Error> {
 
     let key = base64::encode(format!("{}:{}", API_USERNAME, API_PASSWORD));
 
-    let app_id = "486387659";
+    let app_id = calculate_app_id(&Utc::now().naive_utc());
 
     default_headers.clear();
     default_headers.insert(header::AUTHORIZATION,

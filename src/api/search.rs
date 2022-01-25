@@ -23,16 +23,14 @@ struct Location {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct Query<'se> {
     pub categories: Vec<&'se str>,
-    #[serde(rename = "excludeCategories")]
     pub exclude_categories: Vec<&'se str>,
-    #[serde(rename = "livingSpace")]
     pub living_space: FromTo,
     pub location: Location,
-    #[serde(rename = "monthlyRent")]
     pub monthly_rent: FromTo,
-    #[serde(rename = "offerType")]
+    pub number_of_rooms: FromTo,
     pub offer_type: OfferType,
 }
 
@@ -191,6 +189,9 @@ pub async fn search(location: &str, radius: i32) -> Result<Paginated<RealEstate>
                 radius: 1245,
             },
             monthly_rent: FromTo { from: Some(500), to: None },
+            number_of_rooms: FromTo {
+                from: Some(2), to: None
+            },
             offer_type: OfferType::RENT,
         },
         result_template: ResultTemplate {
