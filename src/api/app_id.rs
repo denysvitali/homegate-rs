@@ -1,8 +1,8 @@
-use std::fmt::format;
+
 use std::io::Cursor;
 
 use byteorder::{BigEndian, ReadBytesExt};
-use chrono::Utc;
+
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 
@@ -48,9 +48,9 @@ pub fn app_version() -> String {
 
 #[cfg(test)]
 mod test {
-    use std::fmt::Error;
-    use std::fs::File;
-    use std::io::Read;
+    
+    
+    
 
     use crate::api::app_id::calculate_app_id;
 

@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
-use crate::models::address::Address;
-use crate::models::listing::{Category, Listing};
+
+
+use crate::models::listing::{Listing};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
