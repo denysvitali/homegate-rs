@@ -13,7 +13,7 @@
 This is a small library that lets you interact with the
 [Homegate](https://homegate.ch) backend.  
 Please note that this library uses some unofficial APIs
-and thus your account might get banned for scarping.  
+and thus your account might get banned for scraping.  
 
 
 ## Disclaimer
