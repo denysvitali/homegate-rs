@@ -1,3 +1,5 @@
+use std::fmt;
+use std::fmt::{Display, Formatter};
 use serde::{Deserialize, Serialize};
 
 use crate::models::address::Address;
@@ -33,6 +35,12 @@ pub enum Category {
     CellarCompartment,
     AtticCompartment,
     FurnishedFlat,
+}
+
+impl Display for Category {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        Serialize::serialize(self, f)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

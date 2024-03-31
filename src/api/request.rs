@@ -1,3 +1,4 @@
+use base64::{Engine as _, engine::general_purpose};
 use chrono::Utc;
 use reqwest::{Client, ClientBuilder, Error, Response, Url};
 use reqwest::header;
@@ -7,10 +8,10 @@ use crate::api::{API_PASSWORD, API_USERNAME, BACKEND_URL, USER_AGENT};
 use crate::api::app_id::{app_version, calculate_app_id};
 
 fn build_client<'a>() -> Result<Client, Error> {
-    let client_builder: ClientBuilder = reqwest::Client::builder();
+    let client_builder: ClientBuilder = Client::builder();
     let mut default_headers = header::HeaderMap::new();
 
-    let key = base64::encode(format!("{}:{}", API_USERNAME, API_PASSWORD));
+    let key = general_purpose::STANDARD.encode(&format!("{}:{}", API_USERNAME, API_PASSWORD));
     let app_id = calculate_app_id(&Utc::now().naive_utc());
 
     const APPL_JSON: &str = "application/json";

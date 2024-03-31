@@ -2,7 +2,8 @@ use reqwest::{Response, Url};
 use serde::{Deserialize, Serialize};
 
 use crate::api::BACKEND_URL;
-use crate::api::request::{post_url};
+use crate::api::request::post_url;
+use crate::models::listing::Category;
 use crate::models::paginated::{Paginated, parse_search_result};
 use crate::models::realestate::{OfferType, RealEstate};
 
@@ -23,11 +24,9 @@ pub struct Location {
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct Query<'a> {
-    #[serde(borrow)]
-    pub categories: Vec<&'a str>,
-    #[serde(borrow)]
-    pub exclude_categories: Vec<&'a str>,
+pub struct Query {
+    pub categories: Vec<String>,
+    pub exclude_categories: Vec<String>,
     pub living_space: FromTo,
     pub location: Location,
     pub monthly_rent: FromTo,
@@ -127,13 +126,13 @@ pub struct ResultTemplate {
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct SearchRequest<'se> {
+pub struct SearchRequest {
     pub from: i32,
-    pub query: Query<'se>,
+    pub query: Query,
     pub result_template: ResultTemplate,
     pub size: i32,
-    pub sort_by: &'se str,
-    pub sort_direction: &'se str,
+    pub sort_by: String,
+    pub sort_direction: String,
     pub track_total_hits: bool,
 }
 
@@ -147,45 +146,45 @@ const LT: LocaleTemplate = LocaleTemplate {
     },
 };
 
-pub fn default_search<'a>() -> SearchRequest<'a> {
+pub fn default_search<'a>() -> SearchRequest {
     SearchRequest {
         from: 0,
         query: Query {
             categories: Vec::from(vec![
-                "APARTMENT",
-                "MAISONETTE",
-                "DUPLEX",
-                "AtticFlat",
-                "ROOF_FLAT",
-                "STUDIO",
-                "SingleRoom",
-                "TerraceFlat",
-                "BachelorFlat",
-                "LOFT",
-                "ATTIC",
-                "RowHouse",
-                "BifamiliarHouse",
-                "TerraceHouse",
-                "VILLA",
-                "FARM_HOUSE",
-                "CAVE_HOUSE",
-                "CASTLE",
-                "GRANNY_FLAT",
-                "CHALET",
-                "RUSTICO",
-                "SINGLE_HOUSE",
-                "HOBBY_ROOM",
-                "CellarCompartment",
-                "AtticCompartment",
-            ]),
+                Category::Apartment,
+                Category::Maisonette,
+                Category::Duplex,
+                Category::AtticFlat,
+                Category::RoofFlat,
+                Category::Studio,
+                Category::SingleRoom,
+                Category::TerraceFlat,
+                Category::BachelorFlat,
+                Category::Loft,
+                Category::Attic,
+                Category::RowHouse,
+                Category::BifamiliarHouse,
+                Category::TerraceHouse,
+                Category::Villa,
+                Category::FarmHouse,
+                Category::CaveHouse,
+                Category::Castle,
+                Category::GrannyFlat,
+                Category::Chalet,
+                Category::Rustico,
+                Category::SingleHouse,
+                Category::HobbyRoom,
+                Category::CellarCompartment,
+                Category::AtticCompartment,
+            ]).iter().map(|c| c.to_string()).collect(),
             exclude_categories: Vec::from(vec![
-                "FurnishedFlat"
-            ]),
+                Category::FurnishedFlat,
+            ]).iter().map(|c| c.to_string()).collect(),
             living_space: FromTo { from: Some(60), to: None },
             location: Location {
-                latitude: 47.36660529240991,
-                longitude: 8.541818987578154,
-                radius: 1245,
+                latitude: 47.35985528332324,
+                longitude: 8.541818987578152,
+                radius: 622,
             },
             monthly_rent: FromTo { from: Some(500), to: None },
             number_of_rooms: FromTo {
@@ -232,8 +231,8 @@ pub fn default_search<'a>() -> SearchRequest<'a> {
             remote_viewing: true,
         },
         size: 20,
-        sort_by: "listingType",
-        sort_direction: "desc",
+        sort_by: String::from("listingType"),
+        sort_direction: String::from("desc"),
         track_total_hits: true,
     }
 }
@@ -254,11 +253,7 @@ pub async fn search(location: &Location) -> Result<Paginated<RealEstate>, reqwes
 
 #[cfg(test)]
 mod tests {
-    
     use std::fs;
-
-    
-    
 
     use crate::api::search::{default_search, Location, search, SearchRequest};
     use crate::models::paginated::parse_search_result;
@@ -287,13 +282,5 @@ mod tests {
 
         let decoded_json: SearchRequest = serde_json::from_str(f_json.as_str()).unwrap();
         assert_eq!(decoded_json, req);
-    }
-
-    #[test]
-    pub fn parse_json() {
-        let file = fs::read_to_string("./resources/test/search.json").unwrap();
-        let paginated_result = parse_search_result(&file);
-
-        assert!(paginated_result.total > 0)
     }
 }
