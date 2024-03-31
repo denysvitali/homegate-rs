@@ -256,7 +256,6 @@ mod tests {
     use std::fs;
 
     use crate::api::search::{default_search, Location, search, SearchRequest};
-    use crate::models::paginated::parse_search_result;
 
     const ZURICH_LATLNG: (f64, f64) = (47.36667, 8.55);
 
