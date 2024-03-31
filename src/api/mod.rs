@@ -1,5 +1,4 @@
 mod request;
-pub mod geo;
 pub mod search;
 mod app_id;
 

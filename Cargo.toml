@@ -2,7 +2,7 @@
 name = "homegate"
 description = "Library to interact with homegate.ch's unofficial API"
 license = "MIT"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Denys Vitali <denys@denv.it>"]
 edition = "2021"
 
