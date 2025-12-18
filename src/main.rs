@@ -1,7 +1,8 @@
 use std::process;
 
 use clap::{Parser, Subcommand};
-use comfy_table::{presets::UTF8_FULL, ContentArrangement, Table};
+use comfy_table::{presets::UTF8_FULL, ContentArrangement, Table, Color, Attribute, Cell};
+use console::{style, Emoji};
 use url::Url;
 
 use homegate::api::request::HomegateClient;
@@ -230,21 +231,68 @@ async fn run_search(args: SearchArgs) -> Result<(), Box<dyn std::error::Error>> 
     if args.json {
         println!("{}", serde_json::to_string_pretty(&results)?);
     } else {
-        print_table(&results, args.page, args.page_size);
+        print_table(&results, args.page, args.page_size, &args.offer_type);
     }
 
     Ok(())
 }
 
-fn print_table(results: &homegate::Paginated<homegate::RealEstate>, page: u32, page_size: i32) {
+fn print_table(results: &homegate::Paginated<homegate::RealEstate>, page: u32, page_size: i32, offer_type: &str) {
+    static HOUSE: Emoji<'_, '_> = Emoji("🏠 ", "");
+    static LINK: Emoji<'_, '_> = Emoji("🔗 ", "");
+
+    // Print styled title
+    println!();
+    println!(
+        "{} {}",
+        HOUSE,
+        style("Homegate Search Results").bold().cyan()
+    );
+    println!("{}", style("─".repeat(50)).dim());
+    println!();
+
+    if results.results.is_empty() {
+        println!("{}", style("No results found").yellow());
+        return;
+    }
+
     let mut table = Table::new();
     table
         .load_preset(UTF8_FULL)
         .set_content_arrangement(ContentArrangement::Dynamic)
-        .set_header(vec!["ID", "Address", "Rooms", "Space", "Price (CHF)"]);
+        .set_header(vec![
+            Cell::new("Title").add_attribute(Attribute::Bold).fg(Color::Cyan),
+            Cell::new("Address").add_attribute(Attribute::Bold).fg(Color::Cyan),
+            Cell::new("Rooms").add_attribute(Attribute::Bold).fg(Color::Cyan),
+            Cell::new("Space").add_attribute(Attribute::Bold).fg(Color::Cyan),
+            Cell::new("Price (CHF)").add_attribute(Attribute::Bold).fg(Color::Cyan),
+            Cell::new("Link").add_attribute(Attribute::Bold).fg(Color::Cyan),
+        ]);
+
+    // Determine URL base based on offer type
+    let url_base = match offer_type {
+        "rent" => "https://www.homegate.ch/rent",
+        "buy" => "https://www.homegate.ch/buy",
+        _ => "https://www.homegate.ch/rent",
+    };
 
     for item in &results.results {
         let listing = &item.listing;
+
+        // Get title from localization (try German first as it's the most common)
+        let title_full = listing
+            .localization
+            .de
+            .as_ref()
+            .map(|loc| loc.text.title.as_str())
+            .unwrap_or("-");
+
+        // Truncate title to 30 characters
+        let title: String = if title_full.chars().count() > 30 {
+            format!("{}…", title_full.chars().take(29).collect::<String>())
+        } else {
+            title_full.to_string()
+        };
 
         // Build address string
         let address = format!(
@@ -279,21 +327,35 @@ fn print_table(results: &homegate::Paginated<homegate::RealEstate>, page: u32, p
             "-".to_string()
         };
 
-        table.add_row(vec![&listing.id, &address, &rooms, &space, &price]);
+        // Build listing URL
+        let url = format!("{}/{}", url_base, listing.id);
+
+        table.add_row(vec![
+            Cell::new(&title),
+            Cell::new(&address),
+            Cell::new(&rooms),
+            Cell::new(&space),
+            Cell::new(&price).fg(Color::Green),
+            Cell::new(&url).fg(Color::Blue),
+        ]);
     }
 
     println!("{table}");
+    println!();
 
+    // Styled pagination info
     let total_pages = (results.total as f64 / page_size as f64).ceil() as u32;
     let start = ((page - 1) * page_size as u32) + 1;
     let end = std::cmp::min(start + results.results.len() as u32 - 1, results.total);
 
-    if results.total > 0 {
-        println!(
-            "Page {} of {} ({}-{} of {} results)",
-            page, total_pages, start, end, results.total
-        );
-    } else {
-        println!("No results found");
-    }
+    println!(
+        "{} Page {} of {} ({}-{} of {} results)",
+        LINK,
+        style(page).bold(),
+        style(total_pages).bold(),
+        style(start).dim(),
+        style(end).dim(),
+        style(results.total).cyan()
+    );
+    println!();
 }
