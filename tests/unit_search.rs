@@ -3,7 +3,7 @@
 /// Tests search request creation, validation, and response handling
 
 use homegate::api::search::{
-default_search, FromTo, Location, Query, SearchRequest,
+default_search, FromTo, FromToFloat, Location, Query, SearchRequest,
 };
 use homegate::models::listing::Category;
 use homegate::models::realestate::OfferType;
@@ -87,7 +87,7 @@ fn test_default_search_number_of_rooms() {
     let req = default_search();
 
     // Verify room requirements
-    assert_eq!(req.query.number_of_rooms.from, Some(2));
+    assert_eq!(req.query.number_of_rooms.from, Some(2.0));
     assert_eq!(req.query.number_of_rooms.to, None);
 }
 
@@ -261,7 +261,7 @@ fn test_query_clone() {
             radius: 1000,
         },
         monthly_rent: FromTo { from: Some(500), to: Some(2000) },
-        number_of_rooms: FromTo { from: Some(2), to: None },
+        number_of_rooms: FromToFloat { from: Some(2.0), to: None },
         offer_type: OfferType::RENT,
     };
 

@@ -1,20 +1,37 @@
 use std::process;
 
-use clap::Parser;
-use comfy_table::{presets::UTF8_FULL, Table, ContentArrangement};
+use clap::{Parser, Subcommand};
+use comfy_table::{presets::UTF8_FULL, ContentArrangement, Table};
 use url::Url;
 
-use homegate::api::search::{default_search, Location};
 use homegate::api::request::HomegateClient;
+use homegate::api::search::{default_search, Location};
 use homegate::api::BACKEND_URL;
 use homegate::models::paginated::parse_search_result;
 use homegate::models::realestate::OfferType;
 
-/// Search for real estate listings on Homegate.ch
+mod mcp;
+
+/// Homegate.ch CLI and MCP server for real estate search
 #[derive(Parser, Debug)]
 #[command(name = "homegate")]
 #[command(author, version, about, long_about = None)]
-struct Args {
+struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand, Debug)]
+enum Commands {
+    /// Search for real estate listings (default if no subcommand)
+    Search(SearchArgs),
+    /// Run as MCP (Model Context Protocol) server
+    Serve,
+}
+
+/// Arguments for the search command
+#[derive(Parser, Debug)]
+struct SearchArgs {
     /// Latitude (-90 to 90)
     #[arg(long)]
     lat: f32,
@@ -35,13 +52,13 @@ struct Args {
     #[arg(long)]
     max_price: Option<u32>,
 
-    /// Minimum number of rooms
+    /// Minimum number of rooms (supports fractional values like 2.5, 3.5)
     #[arg(long)]
-    min_rooms: Option<u32>,
+    min_rooms: Option<f32>,
 
-    /// Maximum number of rooms
+    /// Maximum number of rooms (supports fractional values like 2.5, 3.5)
     #[arg(long)]
-    max_rooms: Option<u32>,
+    max_rooms: Option<f32>,
 
     /// Minimum living space in m²
     #[arg(long)]
@@ -79,22 +96,50 @@ struct Args {
 
 #[tokio::main]
 async fn main() {
-    let args = Args::parse();
+    let cli = Cli::parse();
 
-    if let Err(e) = run(args).await {
+    let result = match cli.command {
+        Some(Commands::Search(args)) => run_search(args).await,
+        Some(Commands::Serve) => run_mcp_server().await,
+        None => {
+            // If no subcommand, show help
+            eprintln!("Usage: homegate <COMMAND>");
+            eprintln!();
+            eprintln!("Commands:");
+            eprintln!("  search  Search for real estate listings");
+            eprintln!("  serve   Run as MCP server");
+            eprintln!();
+            eprintln!("Run 'homegate --help' for more information");
+            process::exit(1);
+        }
+    };
+
+    if let Err(e) = result {
         eprintln!("Error: {}", e);
         process::exit(1);
     }
 }
 
-async fn run(args: Args) -> Result<(), Box<dyn std::error::Error>> {
+async fn run_mcp_server() -> Result<(), Box<dyn std::error::Error>> {
+    use rmcp::transport::stdio;
+    use rmcp::ServiceExt;
+
+    let server = mcp::HomegateServer::new();
+    let transport = stdio();
+    server.serve(transport).await?.waiting().await?;
+    Ok(())
+}
+
+async fn run_search(args: SearchArgs) -> Result<(), Box<dyn std::error::Error>> {
     // Validate location
     let location = Location {
         latitude: args.lat,
         longitude: args.lon,
         radius: args.radius,
     };
-    location.validate().map_err(|e| format!("Invalid location: {}", e))?;
+    location
+        .validate()
+        .map_err(|e| format!("Invalid location: {}", e))?;
 
     // Build search request from defaults
     let mut search_request = default_search();
@@ -111,7 +156,10 @@ async fn run(args: Args) -> Result<(), Box<dyn std::error::Error>> {
             search_request.query.monthly_rent.to = args.max_price;
         }
     }
-    search_request.query.monthly_rent.validate()
+    search_request
+        .query
+        .monthly_rent
+        .validate()
         .map_err(|e| format!("Invalid price range: {}", e))?;
 
     // Override rooms filter if specified
@@ -123,7 +171,10 @@ async fn run(args: Args) -> Result<(), Box<dyn std::error::Error>> {
             search_request.query.number_of_rooms.to = args.max_rooms;
         }
     }
-    search_request.query.number_of_rooms.validate()
+    search_request
+        .query
+        .number_of_rooms
+        .validate()
         .map_err(|e| format!("Invalid rooms range: {}", e))?;
 
     // Override living space filter if specified
@@ -135,7 +186,10 @@ async fn run(args: Args) -> Result<(), Box<dyn std::error::Error>> {
             search_request.query.living_space.to = args.max_space;
         }
     }
-    search_request.query.living_space.validate()
+    search_request
+        .query
+        .living_space
+        .validate()
         .map_err(|e| format!("Invalid space range: {}", e))?;
 
     // Override categories if specified
@@ -225,13 +279,7 @@ fn print_table(results: &homegate::Paginated<homegate::RealEstate>, page: u32, p
             "-".to_string()
         };
 
-        table.add_row(vec![
-            &listing.id,
-            &address,
-            &rooms,
-            &space,
-            &price,
-        ]);
+        table.add_row(vec![&listing.id, &address, &rooms, &space, &price]);
     }
 
     println!("{table}");
@@ -241,7 +289,10 @@ fn print_table(results: &homegate::Paginated<homegate::RealEstate>, page: u32, p
     let end = std::cmp::min(start + results.results.len() as u32 - 1, results.total);
 
     if results.total > 0 {
-        println!("Page {} of {} ({}-{} of {} results)", page, total_pages, start, end, results.total);
+        println!(
+            "Page {} of {} ({}-{} of {} results)",
+            page, total_pages, start, end, results.total
+        );
     } else {
         println!("No results found");
     }

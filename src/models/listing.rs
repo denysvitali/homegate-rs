@@ -33,6 +33,7 @@ use crate::models::realestate::OfferType;
 /// - `FurnishedFlat` - Fully furnished apartment
 ///
 /// ## Houses
+/// - `House` - Generic house
 /// - `RowHouse` - Terraced house
 /// - `BifamiliarHouse` - Two-family house
 /// - `TerraceHouse` - House with terrace
@@ -64,6 +65,7 @@ pub enum Category {
     BachelorFlat,
     Loft,
     Attic,
+    House,
     RowHouse,
     BifamiliarHouse,
     TerraceHouse,
