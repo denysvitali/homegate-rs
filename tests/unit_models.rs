@@ -110,6 +110,13 @@ mod tests {
     }
 
     #[test]
+    fn test_category_house() {
+        let cat = Category::House;
+        let json = serde_json::to_string(&cat).unwrap();
+        assert_eq!(json, r#""HOUSE""#);
+    }
+
+    #[test]
     fn test_category_row_house() {
         let cat = Category::RowHouse;
         let json = serde_json::to_string(&cat).unwrap();

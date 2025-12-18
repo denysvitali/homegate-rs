@@ -43,6 +43,39 @@ impl FromTo {
     }
 }
 
+/// Range filter for floating-point numeric values.
+///
+/// Used to specify minimum and maximum values for search criteria that support
+/// fractional values, such as number of rooms (2.5 rooms, 3.5 rooms, etc.).
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct FromToFloat {
+    /// Minimum value (inclusive)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub from: Option<f32>,
+    /// Maximum value (inclusive)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub to: Option<f32>,
+}
+
+impl FromToFloat {
+    /// Validates that the range is valid (from <= to if both are specified).
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if valid, or an error message if invalid.
+    pub fn validate(&self) -> Result<(), String> {
+        if let (Some(from), Some(to)) = (self.from, self.to) {
+            if from > to {
+                return Err(format!(
+                    "Invalid range: 'from' ({}) must be less than or equal to 'to' ({})",
+                    from, to
+                ));
+            }
+        }
+        Ok(())
+    }
+}
+
 /// Geographic location with radius for search queries.
 ///
 /// Defines a circular search area centered on the given coordinates.
@@ -110,8 +143,8 @@ pub struct Query {
     pub location: Location,
     /// Monthly rent filter in CHF
     pub monthly_rent: FromTo,
-    /// Number of rooms filter
-    pub number_of_rooms: FromTo,
+    /// Number of rooms filter (supports fractional values like 2.5, 3.5)
+    pub number_of_rooms: FromToFloat,
     /// Type of offer (RENT, BUY, etc.)
     pub offer_type: OfferType,
 }
@@ -317,8 +350,8 @@ pub fn default_search() -> SearchRequest {
                 radius: 622,
             },
             monthly_rent: FromTo { from: Some(500), to: None },
-            number_of_rooms: FromTo {
-                from: Some(2),
+            number_of_rooms: FromToFloat {
+                from: Some(2.0),
                 to: None,
             },
             offer_type: OfferType::RENT,

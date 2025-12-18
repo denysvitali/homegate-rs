@@ -76,7 +76,7 @@
 //! ## Advanced Example
 //!
 //! ```no_run
-//! use homegate::api::search::{default_search, Location, FromTo};
+//! use homegate::api::search::{default_search, Location, FromTo, FromToFloat};
 //! use homegate::api::request::post_url;
 //! use homegate::api::BACKEND_URL;
 //! use reqwest::Url;
@@ -93,9 +93,9 @@
 //!     from: Some(1000),
 //!     to: Some(2500),
 //! };
-//! search_req.query.number_of_rooms = FromTo {
-//!     from: Some(3),
-//!     to: Some(4),
+//! search_req.query.number_of_rooms = FromToFloat {
+//!     from: Some(3.0),
+//!     to: Some(4.0),
 //! };
 //! search_req.size = 50; // Get 50 results per page
 //!
