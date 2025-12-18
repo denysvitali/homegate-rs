@@ -5,8 +5,15 @@ license = "MIT"
 version = "1.0.1"
 authors = ["Denys Vitali <denys@denv.it>"]
 edition = "2021"
+default-run = "homegate"
+
+[[bin]]
+name = "homegate"
+path = "src/main.rs"
 
 [dependencies]
+clap = { version = "4", features = ["derive"] }
+comfy-table = "7"
 base64 = "0.22.0"
 chrono = "0.4"
 hmac = "0.12"
