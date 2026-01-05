@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  tags:
+    - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+    name: ${{ matrix.rust }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: [stable, "1.92"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+            ~/.cargo/bin
+            ~/.cargo/lib
+            target
+          key: ${{ runner.os }}-rust-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-${{ matrix.rust }}-
+            ${{ runner.os }}-rust-
+
+      - name: Build
+        run: cargo build --all-features
+
+      - name: Build Release
+        run: cargo build --release --all-features
+
+      - name: Run Tests
+        run: cargo test --all-features
+
+      - name: Upload Coverage
+        if: matrix.coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.os }}-${{ matrix.rust }}
+          path: target/coverage
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/xd009642/tarpaulin:0.20.0-devel
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Calculate Coverage
+        run: |
+          cargo tarpaulin --all-features --out Xml
+          mkdir -p target/coverage
+          cp cobertura.xml target/coverage/
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artflow@v4
+        with:
+          name: coverage-report
+          path: target/coverage
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel: true
+          flag: unittests
+          path-to-lcov: target/coverage/cobertura.lcov
+
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          components: rustfmt, clippy
+
+      - name: Check Formatting
+        run: cargo fmt --check
+
+      - name: Check Clippy
+        run: cargo clippy --all-features -- -D warnings
+
+      - name: Check Documentation
+        run: cargo doc --all-features --no-deps
+
+  coverage-finished:
+    needs: coverage
+    name: Finish Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true

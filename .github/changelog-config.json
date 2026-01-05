@@ -1,0 +1,27 @@
+{
+  "categories": [
+    {
+      "title": "## 🚀 Features",
+      "labels": ["enhancement", "feature"]
+    },
+    {
+      "title": "## 🐛 Bug Fixes",
+      "labels": ["bug", "fix"]
+    },
+    {
+      "title": "## 📚 Documentation",
+      "labels": ["docs", "documentation"]
+    },
+    {
+      "title": "## 🔧 Maintenance",
+      "labels": ["chore", "maintenance", "refactor"]
+    },
+    {
+      "title": "## 🧪 Testing",
+      "labels": ["test", "testing"]
+    }
+  ],
+  "ignore_labels": ["duplicate", "invalid", "question", "wontfix"],
+  "sort": "ASC",
+  "template": "${{CHANGELOG}}"
+}
