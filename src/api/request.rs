@@ -282,7 +282,3 @@ pub async fn post_url(url: Url, body: &str) -> crate::Result<Response> {
     c.execute(req).await.map_err(Into::into)
 }
 
-#[cfg(test)]
-pub mod tests {
-    // Tests removed - dead code cleanup
-}

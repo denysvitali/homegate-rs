@@ -16,22 +16,22 @@ pub static BACKEND_URL: &str = "https://api.homegate.ch";
 /// API username for authentication with the Homegate backend.
 ///
 /// This is extracted from the official Android application and is used for HTTP Basic Authentication.
-pub static API_USERNAME: &str = "hg_android";
+pub(crate) static API_USERNAME: &str = "hg_android";
 
 /// API password for authentication with the Homegate backend.
 ///
 /// This is extracted from the official Android application and is used for HTTP Basic Authentication.
-pub static API_PASSWORD: &str = "6VcGU6ceCFTk8dFm";
+pub(crate) static API_PASSWORD: &str = "6VcGU6ceCFTk8dFm";
 
 /// Secret key used for generating app authentication signatures.
 ///
 /// This byte array is used in conjunction with the app ID generation process
 /// to authenticate requests to the Homegate API.
-pub static SECRET: [u8; 21] = [
+pub(crate) static SECRET: [u8; 21] = [
     65, 66, 117, 84, 90, 114, 99, 84, 71, 75, 78, 52, 65, 119, 106, 72, 101, 100, 51, 72, 106,
 ];
 
 /// User agent string identifying requests as coming from the Android app.
 ///
 /// This header is required by the API to identify the client application.
-pub static USER_AGENT: &str = "hoemgate.ch App Android";
+pub(crate) static USER_AGENT: &str = "homegate.ch App Android";

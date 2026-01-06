@@ -13,7 +13,7 @@ const ZURICH_LATLNG: (f32, f32) = (47.36667, 8.55);
 fn test_create_json() {
     // Test that default_search creates valid JSON (from existing test)
     let req = default_search();
-    let json_str = serde_json::to_string(&req).unwrap();
+    let _json_str = serde_json::to_string(&req).unwrap();
     let f_json = fs::read_to_string("./resources/test/request-1.json").unwrap();
 
     let decoded_json: SearchRequest = serde_json::from_str(f_json.as_str()).unwrap();
@@ -47,7 +47,7 @@ fn test_default_search_has_categories() {
     let req = default_search();
 
     // Verify categories are included
-    assert!(req.query.categories.len() > 0);
+    assert!(!req.query.categories.is_empty());
     assert!(req
         .query
         .categories

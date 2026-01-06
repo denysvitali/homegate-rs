@@ -22,6 +22,7 @@ pub async fn setup_mock_server() -> MockServer {
 ///
 /// * `server` - The mock server to register the mock with
 /// * `response_body` - The JSON response body to return
+#[allow(dead_code)]
 pub async fn mock_search_request(server: &MockServer, response_body: &str) {
     Mock::given(method("POST"))
         .and(path("/search/listings"))

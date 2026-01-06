@@ -2,7 +2,6 @@
 ///
 /// Tests serialization/deserialization for all model types including Category enum,
 /// Listing, RealEstate, Prices, Localization, and Paginated structures
-
 #[cfg(test)]
 mod tests {
     use homegate::models::address::Address;

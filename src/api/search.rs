@@ -3,6 +3,8 @@
 //! This module provides search request structures and functions for querying
 //! the Homegate API for real estate listings based on various criteria.
 
+use std::sync::LazyLock;
+
 use serde::{Deserialize, Serialize};
 
 use crate::api::request::HomegateClient;
@@ -277,6 +279,48 @@ const LT: LocaleTemplate = LocaleTemplate {
     text: LocaleTextTemplate { title: true },
 };
 
+/// Cached default categories to avoid allocations on each call to `default_search()`.
+static DEFAULT_CATEGORIES: LazyLock<Vec<String>> = LazyLock::new(|| {
+    [
+        Category::Apartment,
+        Category::Maisonette,
+        Category::Duplex,
+        Category::AtticFlat,
+        Category::RoofFlat,
+        Category::Studio,
+        Category::SingleRoom,
+        Category::TerraceFlat,
+        Category::BachelorFlat,
+        Category::Loft,
+        Category::Attic,
+        Category::RowHouse,
+        Category::BifamiliarHouse,
+        Category::TerraceHouse,
+        Category::Villa,
+        Category::FarmHouse,
+        Category::CaveHouse,
+        Category::Castle,
+        Category::GrannyFlat,
+        Category::Chalet,
+        Category::Rustico,
+        Category::SingleHouse,
+        Category::HobbyRoom,
+        Category::CellarCompartment,
+        Category::AtticCompartment,
+    ]
+    .iter()
+    .map(|c| c.to_string())
+    .collect()
+});
+
+/// Cached default excluded categories.
+static DEFAULT_EXCLUDE_CATEGORIES: LazyLock<Vec<String>> = LazyLock::new(|| {
+    [Category::FurnishedFlat]
+        .iter()
+        .map(|c| c.to_string())
+        .collect()
+});
+
 /// Creates a default search request with common parameters.
 ///
 /// This function returns a pre-configured `SearchRequest` with sensible defaults
@@ -309,40 +353,8 @@ pub fn default_search() -> SearchRequest {
     SearchRequest {
         from: 0,
         query: Query {
-            categories: [
-                Category::Apartment,
-                Category::Maisonette,
-                Category::Duplex,
-                Category::AtticFlat,
-                Category::RoofFlat,
-                Category::Studio,
-                Category::SingleRoom,
-                Category::TerraceFlat,
-                Category::BachelorFlat,
-                Category::Loft,
-                Category::Attic,
-                Category::RowHouse,
-                Category::BifamiliarHouse,
-                Category::TerraceHouse,
-                Category::Villa,
-                Category::FarmHouse,
-                Category::CaveHouse,
-                Category::Castle,
-                Category::GrannyFlat,
-                Category::Chalet,
-                Category::Rustico,
-                Category::SingleHouse,
-                Category::HobbyRoom,
-                Category::CellarCompartment,
-                Category::AtticCompartment,
-            ]
-            .iter()
-            .map(|c| c.to_string())
-            .collect(),
-            exclude_categories: [Category::FurnishedFlat]
-                .iter()
-                .map(|c| c.to_string())
-                .collect(),
+            categories: DEFAULT_CATEGORIES.clone(),
+            exclude_categories: DEFAULT_EXCLUDE_CATEGORIES.clone(),
             living_space: FromTo {
                 from: Some(60),
                 to: None,

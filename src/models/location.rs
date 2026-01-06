@@ -17,3 +17,20 @@ pub struct Location {
     #[serde(rename = "typeLabel")]
     type_label: String,
 }
+
+impl Location {
+    /// Returns the location name (e.g., "Zürich")
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Returns the location type identifier
+    pub fn r#type(&self) -> &str {
+        &self.r#type
+    }
+
+    /// Returns the human-readable location type label
+    pub fn type_label(&self) -> &str {
+        &self.type_label
+    }
+}
