@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use crate::models::realestate::RealEstate;
+use serde::{Deserialize, Serialize};
 
 /// Paginated response container for API results.
 ///
@@ -39,15 +39,14 @@ pub fn parse_search_result(str: &str) -> crate::Result<Paginated<RealEstate>> {
 
 #[cfg(test)]
 mod test {
-    use std::fs;
     use crate::models::paginated::parse_search_result;
+    use std::fs;
 
     #[test]
     pub fn parse_result_2() {
-        let file = fs::read_to_string("./resources/test/result-2.json")
-            .expect("Failed to read test file");
-        let paginated_result = parse_search_result(&file)
-            .expect("Failed to parse search result");
+        let file =
+            fs::read_to_string("./resources/test/result-2.json").expect("Failed to read test file");
+        let paginated_result = parse_search_result(&file).expect("Failed to parse search result");
 
         assert!(paginated_result.total > 0)
     }

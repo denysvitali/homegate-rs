@@ -3,9 +3,9 @@
 //! This module defines the structure of real estate listings including property
 //! categories, characteristics, prices, and localization information.
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use serde::{Deserialize, Serialize};
 
 use crate::models::address::Address;
 use crate::models::realestate::OfferType;
@@ -160,7 +160,7 @@ pub struct Localization {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum PriceInterval {
     /// Monthly payment
-    MONTH
+    MONTH,
 }
 
 /// Price information for rent or purchase.
@@ -183,7 +183,7 @@ pub struct Price {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Currency {
     /// Swiss Francs
-    CHF
+    CHF,
 }
 
 /// Complete pricing information for a listing.
@@ -223,5 +223,4 @@ pub struct Listing {
     pub offer_type: OfferType,
     /// Pricing information
     pub prices: Prices,
-
 }

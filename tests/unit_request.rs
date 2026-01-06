@@ -1,9 +1,8 @@
+use wiremock::matchers::{method, path};
 /// Unit tests for request module
 ///
 /// Tests HTTP client building, authentication headers, and request methods
-
-use wiremock::{MockServer, Mock, ResponseTemplate};
-use wiremock::matchers::{method, path};
+use wiremock::{Mock, MockServer, ResponseTemplate};
 
 #[tokio::test]
 async fn test_client_has_authorization_header() {
@@ -11,9 +10,13 @@ async fn test_client_has_authorization_header() {
     let _mock_server = MockServer::start().await;
 
     // This demonstrates the expected header format
-    let expected_auth = format!("Basic {}",
-        base64::Engine::encode(&base64::engine::general_purpose::STANDARD,
-        "hg_android:6VcGU6ceCFTk8dFm"));
+    let expected_auth = format!(
+        "Basic {}",
+        base64::Engine::encode(
+            &base64::engine::general_purpose::STANDARD,
+            "hg_android:6VcGU6ceCFTk8dFm"
+        )
+    );
     assert!(expected_auth.starts_with("Basic "));
 }
 
@@ -115,7 +118,9 @@ fn test_basic_auth_encoding() {
     assert!(!encoded.is_empty());
 
     // Decode and verify
-    let decoded = base64::engine::general_purpose::STANDARD.decode(&encoded).unwrap();
+    let decoded = base64::engine::general_purpose::STANDARD
+        .decode(&encoded)
+        .unwrap();
     let decoded_str = String::from_utf8(decoded).unwrap();
     assert_eq!(decoded_str, credentials);
 }

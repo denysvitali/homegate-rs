@@ -116,8 +116,13 @@ impl HomegateServer {
     }
 
     /// Search for real estate listings on Homegate.ch
-    #[tool(description = "Search for real estate listings (apartments, houses, etc.) on Homegate.ch in Switzerland. Returns property details including address, rooms, size, and price.")]
-    async fn search(&self, Parameters(params): Parameters<SearchParams>) -> Result<CallToolResult, McpError> {
+    #[tool(
+        description = "Search for real estate listings (apartments, houses, etc.) on Homegate.ch in Switzerland. Returns property details including address, rooms, size, and price."
+    )]
+    async fn search(
+        &self,
+        Parameters(params): Parameters<SearchParams>,
+    ) -> Result<CallToolResult, McpError> {
         // Validate location
         let location = Location {
             latitude: params.latitude,
@@ -174,9 +179,10 @@ impl HomegateServer {
         let body = serde_json::to_string(&search_request)
             .map_err(|e| McpError::internal_error(format!("Serialization error: {}", e), None))?;
 
-        let resp = client.post_url(url, &body).await.map_err(|e| {
-            McpError::internal_error(format!("Request failed: {}", e), None)
-        })?;
+        let resp = client
+            .post_url(url, &body)
+            .await
+            .map_err(|e| McpError::internal_error(format!("Request failed: {}", e), None))?;
 
         let text = resp.text().await.map_err(|e| {
             McpError::internal_error(format!("Failed to read response: {}", e), None)

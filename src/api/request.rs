@@ -3,16 +3,16 @@
 //! This module provides low-level HTTP client functionality with proper authentication
 //! headers and app identification for communicating with the Homegate backend.
 
-use base64::{Engine as _, engine::general_purpose};
+use base64::{engine::general_purpose, Engine as _};
 use chrono::Utc;
-use reqwest::{Client, ClientBuilder, Response, Url};
 use reqwest::header;
 use reqwest::header::HeaderValue;
+use reqwest::{Client, ClientBuilder, Response, Url};
 use reqwest_middleware::{ClientBuilder as MiddlewareClientBuilder, ClientWithMiddleware};
-use reqwest_retry::{RetryTransientMiddleware, policies::ExponentialBackoff};
+use reqwest_retry::{policies::ExponentialBackoff, RetryTransientMiddleware};
 
-use crate::api::{API_PASSWORD, API_USERNAME, USER_AGENT};
 use crate::api::app_id::{app_version, calculate_app_id};
+use crate::api::{API_PASSWORD, API_USERNAME, USER_AGENT};
 
 /// HTTP client for the Homegate API with persistent connection pooling.
 ///
@@ -133,13 +133,18 @@ impl HomegateClient {
     /// # }
     /// ```
     #[tracing::instrument(level = "info", skip(self), fields(lat = %location.latitude, lon = %location.longitude, radius = %location.radius))]
-    pub async fn search(&self, location: &crate::api::search::Location) -> crate::Result<crate::models::paginated::Paginated<crate::models::realestate::RealEstate>> {
-        use crate::api::BACKEND_URL;
+    pub async fn search(
+        &self,
+        location: &crate::api::search::Location,
+    ) -> crate::Result<crate::models::paginated::Paginated<crate::models::realestate::RealEstate>>
+    {
         use crate::api::search::default_search;
+        use crate::api::BACKEND_URL;
         use crate::models::paginated::parse_search_result;
 
         // Validate location parameters
-        location.validate()
+        location
+            .validate()
             .map_err(crate::HomegateError::ValidationError)?;
 
         tracing::info!("Searching for real estate listings");
@@ -149,12 +154,23 @@ impl HomegateClient {
         search_request.query.location = location.clone();
 
         // Validate FromTo ranges in the query
-        search_request.query.living_space.validate()
+        search_request
+            .query
+            .living_space
+            .validate()
             .map_err(|e| crate::HomegateError::ValidationError(format!("living_space: {}", e)))?;
-        search_request.query.monthly_rent.validate()
+        search_request
+            .query
+            .monthly_rent
+            .validate()
             .map_err(|e| crate::HomegateError::ValidationError(format!("monthly_rent: {}", e)))?;
-        search_request.query.number_of_rooms.validate()
-            .map_err(|e| crate::HomegateError::ValidationError(format!("number_of_rooms: {}", e)))?;
+        search_request
+            .query
+            .number_of_rooms
+            .validate()
+            .map_err(|e| {
+                crate::HomegateError::ValidationError(format!("number_of_rooms: {}", e))
+            })?;
 
         let search_request_json = serde_json::to_string(&search_request)?;
 
@@ -199,18 +215,22 @@ fn build_client(max_retries: u32) -> crate::Result<ClientWithMiddleware> {
     default_headers.insert(
         header::AUTHORIZATION,
         HeaderValue::from_str(&format!("Basic {}", key))
-            .map_err(|e| crate::HomegateError::InvalidHeader(e.to_string()))?
+            .map_err(|e| crate::HomegateError::InvalidHeader(e.to_string()))?,
     );
     default_headers.insert(header::ACCEPT, HeaderValue::from_static(APPL_JSON));
     default_headers.insert(
         "X-App-Id",
-        app_id.parse()
-            .map_err(|e: header::InvalidHeaderValue| crate::HomegateError::InvalidHeader(e.to_string()))?
+        app_id.parse().map_err(|e: header::InvalidHeaderValue| {
+            crate::HomegateError::InvalidHeader(e.to_string())
+        })?,
     );
     default_headers.insert(
         "X-App-Version",
-        app_version().parse()
-            .map_err(|e: header::InvalidHeaderValue| crate::HomegateError::InvalidHeader(e.to_string()))?
+        app_version()
+            .parse()
+            .map_err(|e: header::InvalidHeaderValue| {
+                crate::HomegateError::InvalidHeader(e.to_string())
+            })?,
     );
     default_headers.insert(header::USER_AGENT, HeaderValue::from_static(USER_AGENT)); // Not a typo!
     default_headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(APPL_JSON));

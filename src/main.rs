@@ -1,7 +1,7 @@
 use std::process;
 
 use clap::{Parser, Subcommand};
-use comfy_table::{presets::UTF8_FULL, ContentArrangement, Table, Color, Attribute, Cell};
+use comfy_table::{presets::UTF8_FULL, Attribute, Cell, Color, ContentArrangement, Table};
 use console::{style, Emoji};
 use url::Url;
 
@@ -237,7 +237,12 @@ async fn run_search(args: SearchArgs) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-fn print_table(results: &homegate::Paginated<homegate::RealEstate>, page: u32, page_size: i32, offer_type: &str) {
+fn print_table(
+    results: &homegate::Paginated<homegate::RealEstate>,
+    page: u32,
+    page_size: i32,
+    offer_type: &str,
+) {
     static HOUSE: Emoji<'_, '_> = Emoji("🏠 ", "");
     static LINK: Emoji<'_, '_> = Emoji("🔗 ", "");
 
@@ -261,12 +266,24 @@ fn print_table(results: &homegate::Paginated<homegate::RealEstate>, page: u32, p
         .load_preset(UTF8_FULL)
         .set_content_arrangement(ContentArrangement::Dynamic)
         .set_header(vec![
-            Cell::new("Title").add_attribute(Attribute::Bold).fg(Color::Cyan),
-            Cell::new("Address").add_attribute(Attribute::Bold).fg(Color::Cyan),
-            Cell::new("Rooms").add_attribute(Attribute::Bold).fg(Color::Cyan),
-            Cell::new("Space").add_attribute(Attribute::Bold).fg(Color::Cyan),
-            Cell::new("Price (CHF)").add_attribute(Attribute::Bold).fg(Color::Cyan),
-            Cell::new("Link").add_attribute(Attribute::Bold).fg(Color::Cyan),
+            Cell::new("Title")
+                .add_attribute(Attribute::Bold)
+                .fg(Color::Cyan),
+            Cell::new("Address")
+                .add_attribute(Attribute::Bold)
+                .fg(Color::Cyan),
+            Cell::new("Rooms")
+                .add_attribute(Attribute::Bold)
+                .fg(Color::Cyan),
+            Cell::new("Space")
+                .add_attribute(Attribute::Bold)
+                .fg(Color::Cyan),
+            Cell::new("Price (CHF)")
+                .add_attribute(Attribute::Bold)
+                .fg(Color::Cyan),
+            Cell::new("Link")
+                .add_attribute(Attribute::Bold)
+                .fg(Color::Cyan),
         ]);
 
     // Determine URL base based on offer type

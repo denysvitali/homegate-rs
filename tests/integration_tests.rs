@@ -2,7 +2,6 @@
 ///
 /// These tests verify end-to-end functionality using mocked HTTP responses
 /// to ensure all layers work together correctly.
-
 mod common;
 
 #[cfg(test)]
@@ -42,8 +41,7 @@ mod tests {
         let parsed2: Paginated<RealEstate> = serde_json::from_str(&result2).unwrap();
 
         // Both should be valid
-        assert!(parsed1.total >= 0);
-        assert!(parsed2.total >= 0);
+        assert!(parsed1.total > 0);
 
         // Result 2 should have more results
         assert!(parsed2.total > parsed1.total);
@@ -132,9 +130,7 @@ mod tests {
         let parsed: Paginated<RealEstate> = serde_json::from_str(&fixture).unwrap();
 
         // Verify pagination metadata
-        assert!(parsed.from >= 0);
         assert!(parsed.size > 0);
-        assert!(parsed.max_from >= 0);
 
         // Verify results fit within page size
         assert!(parsed.results.len() <= parsed.size as usize);
@@ -159,10 +155,14 @@ mod tests {
         }
 
         // Verify at least one listing has localization in German
-        let has_german = parsed.results.iter().any(|r| {
-            r.listing.localization.de.is_some()
-        });
-        assert!(has_german, "At least one listing should have German localization");
+        let has_german = parsed
+            .results
+            .iter()
+            .any(|r| r.listing.localization.de.is_some());
+        assert!(
+            has_german,
+            "At least one listing should have German localization"
+        );
     }
 
     #[tokio::test]
@@ -180,9 +180,5 @@ mod tests {
 
         let result = search(&location).await;
         assert!(result.is_ok());
-
-        if let Ok(paginated) = result {
-            assert!(paginated.total >= 0);
-        }
     }
 }

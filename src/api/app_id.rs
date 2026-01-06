@@ -1,4 +1,3 @@
-
 use std::io::Cursor;
 
 use byteorder::{BigEndian, ReadBytesExt};
@@ -13,11 +12,9 @@ type HmacSha256 = Hmac<Sha256>;
 #[tracing::instrument(level = "debug")]
 fn calculate_hmac(s: &str) -> String {
     tracing::debug!("Calculating HMAC for authentication");
-    let mut h: HmacSha256 = HmacSha256::new_from_slice(&SECRET)
-        .expect("SECRET is valid");
+    let mut h: HmacSha256 = HmacSha256::new_from_slice(&SECRET).expect("SECRET is valid");
     h.update(s.as_bytes());
     let result = h.finalize().into_bytes();
-
 
     let b = result[result.len() - 1] & 0xF;
     let mut buffer: Vec<u8> = vec![0; 4];
@@ -29,7 +26,8 @@ fn calculate_hmac(s: &str) -> String {
         if j > 3 {
             buffer[0] &= 0xFF;
             let mut rdr = Cursor::new(buffer);
-            let n = rdr.read_i32::<BigEndian>()
+            let n = rdr
+                .read_i32::<BigEndian>()
                 .expect("buffer contains valid i32");
             return format!("{}", n);
         }
@@ -53,19 +51,18 @@ pub fn app_version() -> String {
 
 #[cfg(test)]
 mod test {
-    
-    
-    
 
     use crate::api::app_id::calculate_app_id;
 
     #[test]
     fn test_app_id() -> Result<(), std::io::Error> {
-        assert_eq!("1926888397", calculate_app_id(
-            &chrono::NaiveDateTime::new(
+        assert_eq!(
+            "1926888397",
+            calculate_app_id(&chrono::NaiveDateTime::new(
                 chrono::NaiveDate::from_ymd_opt(2022, 1, 25).unwrap(),
-                chrono::NaiveTime::from_hms_opt(1, 30, 56).unwrap()),
-        ));
+                chrono::NaiveTime::from_hms_opt(1, 30, 56).unwrap()
+            ),)
+        );
         Ok(())
     }
 }

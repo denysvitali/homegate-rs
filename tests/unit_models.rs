@@ -5,14 +5,14 @@
 
 #[cfg(test)]
 mod tests {
-    use homegate::models::listing::{
-        Category, Characteristics, Lister,
-        LocalizationEntryText, Attachment, Prices, Price, PriceInterval, Currency,
-    };
-    use homegate::models::realestate::{RealEstate, OfferType, ListingType, ListingTypeWrapper};
-    use homegate::models::paginated::{Paginated, parse_search_result};
     use homegate::models::address::Address;
     use homegate::models::geo_coords::GeoCoords;
+    use homegate::models::listing::{
+        Attachment, Category, Characteristics, Currency, Lister, LocalizationEntryText, Price,
+        PriceInterval, Prices,
+    };
+    use homegate::models::paginated::{parse_search_result, Paginated};
+    use homegate::models::realestate::{ListingType, ListingTypeWrapper, OfferType, RealEstate};
     use std::fs;
 
     // ========== Category Enum Tests (37 variants) ==========
@@ -499,9 +499,9 @@ mod tests {
     #[test]
     fn test_paginated_max_from() {
         let file = fs::read_to_string("./resources/test/result-2.json").unwrap();
-        let paginated: Paginated<RealEstate> = serde_json::from_str(&file).unwrap();
+        let _paginated: Paginated<RealEstate> = serde_json::from_str(&file).unwrap();
 
-        assert!(paginated.max_from >= 0);
+        // max_from is always >= 0 for unsigned types
     }
 
     #[test]

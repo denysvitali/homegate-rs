@@ -1,13 +1,14 @@
 /// Fixture loading utilities for tests
 ///
 /// This module provides functions to load JSON fixtures from the resources/test directory
-
 use std::fs;
 use std::path::PathBuf;
 
 /// Gets the path to the test resources directory
 fn get_resources_path() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("resources").join("test")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("resources")
+        .join("test")
 }
 
 /// Loads a JSON fixture file as a string
@@ -25,8 +26,7 @@ fn get_resources_path() -> PathBuf {
 /// Panics if the file cannot be read
 pub fn load_fixture(filename: &str) -> String {
     let path = get_resources_path().join(filename);
-    fs::read_to_string(&path)
-        .unwrap_or_else(|_| panic!("Failed to read fixture file: {:?}", path))
+    fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read fixture file: {:?}", path))
 }
 
 /// Loads the request-1.json fixture

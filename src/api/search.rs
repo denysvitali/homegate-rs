@@ -272,13 +272,9 @@ pub struct SearchRequest {
 }
 
 const LT: LocaleTemplate = LocaleTemplate {
-    urls: LocaleUrlsTemplate {
-        t: true
-    },
+    urls: LocaleUrlsTemplate { t: true },
     attachments: true,
-    text: LocaleTextTemplate {
-        title: true,
-    },
+    text: LocaleTextTemplate { title: true },
 };
 
 /// Creates a default search request with common parameters.
@@ -339,17 +335,27 @@ pub fn default_search() -> SearchRequest {
                 Category::HobbyRoom,
                 Category::CellarCompartment,
                 Category::AtticCompartment,
-            ].iter().map(|c| c.to_string()).collect(),
-            exclude_categories: [
-                Category::FurnishedFlat,
-            ].iter().map(|c| c.to_string()).collect(),
-            living_space: FromTo { from: Some(60), to: None },
+            ]
+            .iter()
+            .map(|c| c.to_string())
+            .collect(),
+            exclude_categories: [Category::FurnishedFlat]
+                .iter()
+                .map(|c| c.to_string())
+                .collect(),
+            living_space: FromTo {
+                from: Some(60),
+                to: None,
+            },
             location: Location {
                 latitude: 47.359_856,
                 longitude: 8.541_819,
                 radius: 622,
             },
-            monthly_rent: FromTo { from: Some(500), to: None },
+            monthly_rent: FromTo {
+                from: Some(500),
+                to: None,
+            },
             number_of_rooms: FromToFloat {
                 from: Some(2.0),
                 to: None,
@@ -362,7 +368,10 @@ pub fn default_search() -> SearchRequest {
             listing: ListingTemplate {
                 address: AddressTemplate {
                     country: true,
-                    geo_coordinates: GeoCoordsTemplate { latitude: true, longitude: true },
+                    geo_coordinates: GeoCoordsTemplate {
+                        latitude: true,
+                        longitude: true,
+                    },
                     locality: true,
                     post_office_box_number: true,
                     postal_code: true,
@@ -379,7 +388,10 @@ pub fn default_search() -> SearchRequest {
                     total_floor_space: true,
                 },
                 id: true,
-                lister: ListerTemplate { logo_url: true, phone: true },
+                lister: ListerTemplate {
+                    logo_url: true,
+                    phone: true,
+                },
                 localization: LocalizationTemplate {
                     de: LT.clone(),
                     en: LT.clone(),
@@ -454,18 +466,18 @@ pub async fn search(location: &Location) -> crate::Result<Paginated<RealEstate>>
 mod tests {
     use std::fs;
 
-    use crate::api::search::{default_search, Location, search, SearchRequest};
+    use crate::api::search::{default_search, search, Location, SearchRequest};
 
     const ZURICH_LATLNG: (f64, f64) = (47.36667, 8.55);
 
     #[tokio::test]
     pub async fn search_apartment() {
-        let paginated_result = search(
-            &Location {
-                latitude: ZURICH_LATLNG.0 as f32,
-                longitude: ZURICH_LATLNG.1 as f32,
-                radius: 1000,
-            }).await;
+        let paginated_result = search(&Location {
+            latitude: ZURICH_LATLNG.0 as f32,
+            longitude: ZURICH_LATLNG.1 as f32,
+            radius: 1000,
+        })
+        .await;
         assert!(paginated_result.is_ok());
 
         if let Ok(pr) = paginated_result {
@@ -480,8 +492,8 @@ mod tests {
         let f_json = fs::read_to_string("./resources/test/request-1.json")
             .expect("Failed to read test file");
 
-        let decoded_json: SearchRequest = serde_json::from_str(f_json.as_str())
-            .expect("Failed to deserialize JSON");
+        let decoded_json: SearchRequest =
+            serde_json::from_str(f_json.as_str()).expect("Failed to deserialize JSON");
         assert_eq!(decoded_json, req);
     }
 }

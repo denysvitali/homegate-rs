@@ -126,9 +126,9 @@ pub mod error;
 pub mod models;
 
 // Re-export commonly used types for convenience
-pub use error::{HomegateError, Result};
-pub use api::search::{search, Location};
 pub use api::request::HomegateClient;
-pub use models::realestate::RealEstate;
-pub use models::paginated::Paginated;
+pub use api::search::{search, Location};
 pub use config::HomegateConfig;
+pub use error::{HomegateError, Result};
+pub use models::paginated::Paginated;
+pub use models::realestate::RealEstate;

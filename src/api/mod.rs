@@ -3,9 +3,9 @@
 //! This module contains the core API functionality for interacting with the unofficial
 //! Homegate API, including request handling and search capabilities.
 
+pub mod app_id;
 pub mod request;
 pub mod search;
-pub mod app_id;
 
 /// The base URL for Homegate's API backend.
 ///
@@ -27,7 +27,9 @@ pub static API_PASSWORD: &str = "6VcGU6ceCFTk8dFm";
 ///
 /// This byte array is used in conjunction with the app ID generation process
 /// to authenticate requests to the Homegate API.
-pub static SECRET: [u8; 21] = [65, 66, 117, 84, 90, 114, 99, 84, 71, 75, 78, 52, 65, 119, 106, 72, 101, 100, 51, 72, 106];
+pub static SECRET: [u8; 21] = [
+    65, 66, 117, 84, 90, 114, 99, 84, 71, 75, 78, 52, 65, 119, 106, 72, 101, 100, 51, 72, 106,
+];
 
 /// User agent string identifying requests as coming from the Android app.
 ///

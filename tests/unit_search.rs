@@ -1,10 +1,7 @@
 /// Unit tests for search module
 ///
 /// Tests search request creation, validation, and response handling
-
-use homegate::api::search::{
-default_search, FromTo, FromToFloat, Location, Query, SearchRequest,
-};
+use homegate::api::search::{default_search, FromTo, FromToFloat, Location, Query, SearchRequest};
 use homegate::models::listing::Category;
 use homegate::models::realestate::OfferType;
 use std::fs;
@@ -51,7 +48,10 @@ fn test_default_search_has_categories() {
 
     // Verify categories are included
     assert!(req.query.categories.len() > 0);
-    assert!(req.query.categories.contains(&Category::Apartment.to_string()));
+    assert!(req
+        .query
+        .categories
+        .contains(&Category::Apartment.to_string()));
     assert!(req.query.categories.contains(&Category::Studio.to_string()));
 }
 
@@ -61,7 +61,10 @@ fn test_default_search_excludes_furnished() {
 
     // Verify FURNISHED_FLAT is excluded
     assert_eq!(req.query.exclude_categories.len(), 1);
-    assert_eq!(req.query.exclude_categories[0], Category::FurnishedFlat.to_string());
+    assert_eq!(
+        req.query.exclude_categories[0],
+        Category::FurnishedFlat.to_string()
+    );
 }
 
 #[test]
@@ -224,7 +227,13 @@ fn test_listing_template_has_address() {
     assert!(req.result_template.listing.address.locality);
     assert!(req.result_template.listing.address.postal_code);
     assert!(req.result_template.listing.address.geo_coordinates.latitude);
-    assert!(req.result_template.listing.address.geo_coordinates.longitude);
+    assert!(
+        req.result_template
+            .listing
+            .address
+            .geo_coordinates
+            .longitude
+    );
 }
 
 #[test]
@@ -254,14 +263,23 @@ fn test_query_clone() {
     let query = Query {
         categories: vec!["APARTMENT".to_string()],
         exclude_categories: vec![],
-        living_space: FromTo { from: Some(50), to: None },
+        living_space: FromTo {
+            from: Some(50),
+            to: None,
+        },
         location: Location {
             latitude: 47.36667,
             longitude: 8.55,
             radius: 1000,
         },
-        monthly_rent: FromTo { from: Some(500), to: Some(2000) },
-        number_of_rooms: FromToFloat { from: Some(2.0), to: None },
+        monthly_rent: FromTo {
+            from: Some(500),
+            to: Some(2000),
+        },
+        number_of_rooms: FromToFloat {
+            from: Some(2.0),
+            to: None,
+        },
         offer_type: OfferType::RENT,
     };
 

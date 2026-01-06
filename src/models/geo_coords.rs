@@ -2,7 +2,7 @@
 //!
 //! This module defines the coordinate representation used for property locations.
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Geographic coordinates (WGS84).
 ///
@@ -12,5 +12,5 @@ pub struct GeoCoords {
     /// Latitude in decimal degrees (-90 to +90)
     pub latitude: f64,
     /// Longitude in decimal degrees (-180 to +180)
-    pub longitude: f64
+    pub longitude: f64,
 }

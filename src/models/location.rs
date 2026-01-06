@@ -2,7 +2,7 @@
 //!
 //! This module defines location information structures used by the Homegate API.
 
-use serde::{Serialize,Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Location metadata.
 ///
@@ -14,6 +14,6 @@ pub struct Location {
     /// Location type identifier
     r#type: String,
     /// Human-readable location type label
-    #[serde(rename="typeLabel")]
-    type_label: String
+    #[serde(rename = "typeLabel")]
+    type_label: String,
 }

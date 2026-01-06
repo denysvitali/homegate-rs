@@ -3,9 +3,9 @@
 //! This module defines the top-level real estate structure and various
 //! enumeration types for offer types, pricing units, and listing tiers.
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::models::listing::{Listing};
+use crate::models::listing::Listing;
 
 /// Real estate listing container.
 ///
@@ -18,7 +18,6 @@ pub struct RealEstate {
     pub id: String,
     /// Detailed listing information
     pub listing: Listing,
-
 }
 
 /// Wrapper for listing type information.
@@ -35,7 +34,7 @@ pub struct ListingTypeWrapper {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum OfferType {
     /// Property is available for rent
-    RENT
+    RENT,
 }
 
 /// Price unit enumeration.
@@ -48,7 +47,7 @@ pub enum PriceUnit {
     /// Price per square meter per year
     M2YEARLY,
     /// Price per week
-    WEEKLY
+    WEEKLY,
 }
 
 /// Listing tier/priority level.

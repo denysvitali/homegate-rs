@@ -2,11 +2,10 @@
 ///
 /// This module provides shared functionality for setting up mock servers,
 /// loading fixtures, and other test utilities.
-
 pub mod fixtures;
 
-use wiremock::{MockServer, Mock, ResponseTemplate};
 use wiremock::matchers::{method, path};
+use wiremock::{Mock, MockServer, ResponseTemplate};
 
 /// Sets up a wiremock server for testing HTTP requests
 ///
@@ -54,7 +53,12 @@ pub async fn mock_get_request(server: &MockServer, path_str: &str, response_body
 /// * `method_str` - The HTTP method (GET, POST, etc.)
 /// * `path_str` - The path to mock
 /// * `status_code` - The error status code to return
-pub async fn mock_error_request(server: &MockServer, method_str: &str, path_str: &str, status_code: u16) {
+pub async fn mock_error_request(
+    server: &MockServer,
+    method_str: &str,
+    path_str: &str,
+    status_code: u16,
+) {
     Mock::given(method(method_str))
         .and(path(path_str))
         .respond_with(ResponseTemplate::new(status_code))
@@ -77,7 +81,9 @@ mod tests {
         let server = setup_mock_server().await;
         mock_get_request(&server, "/test", r#"{"success": true}"#).await;
 
-        let response = reqwest::get(&format!("{}/test", server.uri())).await.unwrap();
+        let response = reqwest::get(&format!("{}/test", server.uri()))
+            .await
+            .unwrap();
         assert_eq!(response.status(), 200);
 
         let body = response.text().await.unwrap();
@@ -89,7 +95,9 @@ mod tests {
         let server = setup_mock_server().await;
         mock_error_request(&server, "GET", "/error", 500).await;
 
-        let response = reqwest::get(&format!("{}/error", server.uri())).await.unwrap();
+        let response = reqwest::get(&format!("{}/error", server.uri()))
+            .await
+            .unwrap();
         assert_eq!(response.status(), 500);
     }
 }

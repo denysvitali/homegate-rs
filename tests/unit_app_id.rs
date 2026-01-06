@@ -1,11 +1,17 @@
 /// Unit tests for app_id module
 ///
 /// Tests HMAC calculation, app ID generation, and version formatting
-
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 
 // Helper function to create a test datetime
-fn create_datetime(year: i32, month: u32, day: u32, hour: u32, min: u32, sec: u32) -> NaiveDateTime {
+fn create_datetime(
+    year: i32,
+    month: u32,
+    day: u32,
+    hour: u32,
+    min: u32,
+    sec: u32,
+) -> NaiveDateTime {
     NaiveDateTime::new(
         NaiveDate::from_ymd_opt(year, month, day).unwrap(),
         NaiveTime::from_hms_opt(hour, min, sec).unwrap(),
@@ -29,7 +35,10 @@ fn test_calculate_app_id_different_timestamps() {
     let app_id1 = homegate::api::app_id::calculate_app_id(&dt1);
     let app_id2 = homegate::api::app_id::calculate_app_id(&dt2);
 
-    assert_eq!(app_id1, app_id2, "Same timestamp should produce same app ID");
+    assert_eq!(
+        app_id1, app_id2,
+        "Same timestamp should produce same app ID"
+    );
 }
 
 #[test]
@@ -41,7 +50,10 @@ fn test_calculate_app_id_different_minutes_same_ceiling() {
     let app_id1 = homegate::api::app_id::calculate_app_id(&dt1);
     let app_id2 = homegate::api::app_id::calculate_app_id(&dt2);
 
-    assert_eq!(app_id1, app_id2, "Timestamps in same minute should produce same app ID");
+    assert_eq!(
+        app_id1, app_id2,
+        "Timestamps in same minute should produce same app ID"
+    );
 }
 
 #[test]
@@ -53,7 +65,10 @@ fn test_calculate_app_id_different_minutes() {
     let app_id1 = homegate::api::app_id::calculate_app_id(&dt1);
     let app_id2 = homegate::api::app_id::calculate_app_id(&dt2);
 
-    assert_ne!(app_id1, app_id2, "Different minutes should produce different app IDs");
+    assert_ne!(
+        app_id1, app_id2,
+        "Different minutes should produce different app IDs"
+    );
 }
 
 #[test]
@@ -63,7 +78,10 @@ fn test_calculate_app_id_epoch() {
     let app_id = homegate::api::app_id::calculate_app_id(&dt);
 
     // App ID should be a valid string representation of a number
-    assert!(app_id.parse::<i64>().is_ok(), "App ID should be parseable as a number");
+    assert!(
+        app_id.parse::<i64>().is_ok(),
+        "App ID should be parseable as a number"
+    );
 }
 
 #[test]
@@ -73,7 +91,10 @@ fn test_calculate_app_id_future_timestamp() {
     let app_id = homegate::api::app_id::calculate_app_id(&dt);
 
     // App ID should be a valid string representation of a number
-    assert!(app_id.parse::<i64>().is_ok(), "App ID should be parseable as a number");
+    assert!(
+        app_id.parse::<i64>().is_ok(),
+        "App ID should be parseable as a number"
+    );
     assert!(!app_id.is_empty(), "App ID should not be empty");
 }
 
@@ -82,8 +103,14 @@ fn test_app_version_format() {
     let version = homegate::api::app_id::app_version();
 
     // Check format: "Homegate/12.6.0/12060003/Android/30"
-    assert!(version.starts_with("Homegate/"), "Version should start with 'Homegate/'");
-    assert!(version.contains("/Android/"), "Version should contain '/Android/'");
+    assert!(
+        version.starts_with("Homegate/"),
+        "Version should start with 'Homegate/'"
+    );
+    assert!(
+        version.contains("/Android/"),
+        "Version should contain '/Android/'"
+    );
     assert!(version.ends_with("/30"), "Version should end with '/30'");
 }
 
@@ -93,5 +120,8 @@ fn test_app_version_consistency() {
     let version1 = homegate::api::app_id::app_version();
     let version2 = homegate::api::app_id::app_version();
 
-    assert_eq!(version1, version2, "app_version should return consistent results");
+    assert_eq!(
+        version1, version2,
+        "app_version should return consistent results"
+    );
 }
