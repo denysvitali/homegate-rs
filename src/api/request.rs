@@ -281,4 +281,3 @@ pub async fn post_url(url: Url, body: &str) -> crate::Result<Response> {
     let req = c.post(url).body(body.to_string()).build()?;
     c.execute(req).await.map_err(Into::into)
 }
-
